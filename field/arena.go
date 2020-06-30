@@ -48,6 +48,7 @@ type Arena struct {
 	accessPoint      network.AccessPoint
 	accessPoint2     network.AccessPoint
 	networkSwitch    *network.Switch
+	dnsMasq          *network.DnsMasq
 	Plc              plc.Plc
 	TbaClient        *partner.TbaClient
 	AllianceStations map[string]*AllianceStation
@@ -141,6 +142,7 @@ func (arena *Arena) LoadSettings() error {
 	arena.accessPoint2.SetSettings(settings.Ap2Address, settings.Ap2Username, settings.Ap2Password,
 		settings.Ap2TeamChannel, 0, "", settings.NetworkSecurityEnabled)
 	arena.networkSwitch = network.NewSwitch(settings.SwitchAddress, settings.SwitchPassword)
+	arena.dnsMasq = network.NewDnsMasq()
 	arena.Plc.SetAddress(settings.PlcAddress)
 	arena.TbaClient = partner.NewTbaClient(settings.TbaEventCode, settings.TbaSecretId, settings.TbaSecret)
 
@@ -631,6 +633,9 @@ func (arena *Arena) setupNetwork(teams [6]*model.Team) {
 		go func() {
 			if err := arena.networkSwitch.ConfigureTeamEthernet(teams); err != nil {
 				log.Printf("Failed to configure team Ethernet: %s", err.Error())
+			}
+			if err := arena.dnsMasq.ConfigureTeamEthernet(teams); err != nil {
+				log.Printf("Failed to configure dnsmasq: %s", err.Error())
 			}
 		}()
 	}

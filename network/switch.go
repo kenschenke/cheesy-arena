@@ -60,18 +60,11 @@ func (sw *Switch) ConfigureTeamEthernet(teams [6]*model.Team) error {
 			delete(oldTeamVlans, team.Id)
 		} else {
 			addTeamVlansCommand += fmt.Sprintf(
-				"ip dhcp excluded-address 10.%d.%d.1 10.%d.%d.100\n"+
-					"no ip dhcp pool dhcp%d\n"+
-					"ip dhcp pool dhcp%d\n"+
-					"network 10.%d.%d.0 255.255.255.0\n"+
-					"default-router 10.%d.%d.61\n"+
-					"lease 7\n"+
 					"no access-list 1%d\n"+
 					"access-list 1%d permit ip 10.%d.%d.0 0.0.0.255 host %s\n"+
 					"access-list 1%d permit udp any eq bootpc any eq bootps\n"+
 					"interface Vlan%d\nip address 10.%d.%d.61 255.255.255.0\n",
-				team.Id/100, team.Id%100, team.Id/100, team.Id%100, vlan, vlan, team.Id/100, team.Id%100, team.Id/100,
-				team.Id%100, vlan, vlan, team.Id/100, team.Id%100, ServerIpAddress, vlan, vlan, team.Id/100,
+				vlan, vlan, team.Id/100, team.Id%100, ServerIpAddress, vlan, vlan, team.Id/100,
 				team.Id%100)
 		}
 	}
