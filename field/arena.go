@@ -783,6 +783,14 @@ func (arena *Arena) handlePlcOutput() {
 	}
 }
 
+func (arena *Arena) EstopClicked(station string) {
+	allianceStation := arena.AllianceStations[station]
+	if arena.MatchState == AutoPeriod {
+		allianceStation.Astop = true
+	}
+	allianceStation.Estop = true
+}
+
 func (arena *Arena) handleEstop(station string, state bool) {
 	allianceStation := arena.AllianceStations[station]
 	if state {

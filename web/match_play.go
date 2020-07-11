@@ -7,6 +7,7 @@ package web
 
 import (
 	"fmt"
+	"github.com/Team254/cheesy-arena/field"
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
 	"github.com/Team254/cheesy-arena/tournament"
@@ -221,7 +222,13 @@ func (web *Web) matchPlayWebsocketHandler(w http.ResponseWriter, r *http.Request
 				ws.WriteError(fmt.Sprintf("Invalid alliance station '%s'.", station))
 				continue
 			}
-			web.arena.AllianceStations[station].Bypass = !web.arena.AllianceStations[station].Bypass
+			if (web.arena.MatchState == field.AutoPeriod ||
+				web.arena.MatchState == field.PausePeriod ||
+				web.arena.MatchState == field.TeleopPeriod) {
+				web.arena.EstopClicked(station)
+			} else {
+				web.arena.AllianceStations[station].Bypass = !web.arena.AllianceStations[station].Bypass
+			}
 		case "startMatch":
 			args := struct {
 				MuteMatchSounds bool
