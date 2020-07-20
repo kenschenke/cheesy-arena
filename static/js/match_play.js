@@ -48,6 +48,11 @@ var setAllianceStationDisplay = function() {
   websocket.send("setAllianceStationDisplay", $("input[name=allianceStationDisplay]:checked").val());
 };
 
+// Sends a websocket message to change the field lights
+var setFieldLights = function() {
+  websocket.send("setFieldLights", $("input[name=fieldLights]:checked").val());
+};
+
 // Sends a websocket message to start the timeout.
 var startTimeout = function() {
   var duration = $("#timeoutDuration").val().split(":");
@@ -289,6 +294,12 @@ var handleAllianceStationDisplayMode = function(data) {
   $("input[name=allianceStationDisplay][value=" + data + "]").prop("checked", true);
 };
 
+// Handles a websocket message to update the fieldlights selector.
+var handleFieldLights = function(data) {
+  $("input[name=fieldLights]:checked").prop("checked", false);
+  $("input[name=fieldLights][value=" + data.Lights + "]").prop("checked", true);
+};
+
 // Handles a websocket message to update the event status message.
 var handleEventStatus = function(data) {
   if (data.CycleTime === "") {
@@ -312,5 +323,6 @@ $(function() {
     matchTime: function(event) { handleMatchTime(event.data); },
     matchTiming: function(event) { handleMatchTiming(event.data); },
     realtimeScore: function(event) { handleRealtimeScore(event.data); },
+    fieldLights: function(event) { handleFieldLights(event.data); },
   });
 });

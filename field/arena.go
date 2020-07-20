@@ -50,6 +50,7 @@ type Arena struct {
 	networkSwitch    *network.Switch
 	dnsMasq          *network.DnsMasq
 	Plc              plc.Plc
+	FieldLights      *Lights
 	TbaClient        *partner.TbaClient
 	AllianceStations map[string]*AllianceStation
 	Displays         map[string]*Display
@@ -124,6 +125,9 @@ func NewArena(dbPath string) (*Arena, error) {
 	arena.SavedMatch = &model.Match{}
 	arena.SavedMatchResult = model.NewMatchResult()
 	arena.AllianceStationDisplayMode = "match"
+
+	// Initialize field lights controller
+	arena.FieldLights = NewLights()
 
 	return arena, nil
 }
@@ -763,6 +767,8 @@ func (arena *Arena) handlePlcOutput() {
 		// Turn off lights if all teams become ready.
 		if redAllianceReady && blueAllianceReady {
 			arena.Plc.SetFieldResetLight(false)
+			arena.FieldLights.SetLightsOff()
+			arena.FieldLightsNotifier.Notify()
 		}
 	case PostMatch:
 		if arena.FieldReset {
