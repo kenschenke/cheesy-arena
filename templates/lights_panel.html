@@ -1,0 +1,20 @@
+{{/*
+    Copyright 2020 Ken Schenke. All Rights Reserved.
+    Author: kenschenke@gmail.com (Ken Schenke)
+  
+    UI for controlling field lights.
+  */}}
+  {{define "title"}}Field Lights{{end}}
+  {{define "body"}}
+  <div class="container">
+    <div class="well lightwell lightwell-off" onclick="setFieldLights('off');">Off</div>
+    <div class="well lightwell lightwell-cleanup" onclick="setFieldLights('purple');">Field Cleanup</div>
+    <div class="well lightwell lightwell-reset" onclick="setFieldLights('green');">Field Reset</div>
+    </div>
+  {{end}}
+  {{define "head"}}
+  <link href="/static/css/lights_panel.css" rel="stylesheet">
+  {{end}}
+  {{define "script"}}
+  <script src="/static/js/lights_panel.js"></script>
+  {{end}}
