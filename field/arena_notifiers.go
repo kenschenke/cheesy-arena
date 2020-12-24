@@ -30,6 +30,7 @@ type ArenaNotifiers struct {
 	ReloadDisplaysNotifier             *websocket.Notifier
 	ScorePostedNotifier                *websocket.Notifier
 	FieldLightsNotifier                *websocket.Notifier
+	SCCNotifier                        *websocket.Notifier
 }
 
 type MatchTimeMessage struct {
@@ -62,6 +63,7 @@ func (arena *Arena) configureNotifiers() {
 	arena.ReloadDisplaysNotifier = websocket.NewNotifier("reload", nil)
 	arena.ScorePostedNotifier = websocket.NewNotifier("scorePosted", arena.generateScorePostedMessage)
 	arena.FieldLightsNotifier = websocket.NewNotifier("fieldLights", arena.generateFieldLightsMessage)
+	arena.SCCNotifier = websocket.NewNotifier("sccstatus", arena.generateSCCStatusMessage)
 }
 
 func (arena *Arena) generateAllianceSelectionMessage() interface{} {
@@ -163,6 +165,10 @@ func (arena *Arena) generateRealtimeScoreMessage() interface{} {
 	fields.Blue = getAudienceAllianceScoreFields(arena.BlueScore, arena.BlueScoreSummary())
 	fields.MatchState = arena.MatchState
 	return &fields
+}
+
+func (arena *Arena) generateSCCStatusMessage() interface{} {
+	return arena.Scc.GenerateNotifierStatus()
 }
 
 func (arena *Arena) generateScorePostedMessage() interface{} {

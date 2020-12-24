@@ -24,6 +24,7 @@ const (
 	postTimeoutSec           = 4
 	preLoadNextMatchDelaySec = 5
 	earlyLateThresholdMin    = 2.5
+	sccConnectionTimeout     = 5.0
 	MaxMatchGapMin           = 20
 )
 
@@ -51,6 +52,7 @@ type Arena struct {
 	dnsMasq          *network.DnsMasq
 	Plc              plc.Plc
 	FieldLights      *Lights
+	Scc              *SCC
 	TbaClient        *partner.TbaClient
 	AllianceStations map[string]*AllianceStation
 	Displays         map[string]*Display
@@ -128,6 +130,9 @@ func NewArena(dbPath string) (*Arena, error) {
 
 	// Initialize field lights controller
 	arena.FieldLights = NewLights()
+
+	// Initialize SCC information
+	arena.Scc = NewSCC(arena)
 
 	return arena, nil
 }
@@ -499,6 +504,27 @@ func (arena *Arena) Update() {
 
 	arena.LastMatchTimeSec = matchTimeSec
 	arena.lastMatchState = arena.MatchState
+
+	// Update SCC connection status
+	now := time.Now()
+	for alliance, scc := range arena.Scc.status {
+		if scc.Connected && now.Sub(scc.LastUpdate).Seconds() > sccConnectionTimeout {
+			// Lost connection with SCC.
+			// Mark it as lost and show all three eStops for that SCC as false.
+			scc.Connected = false
+			allianceLetter := "R"
+			if alliance == "blue" {
+				allianceLetter = "B"
+			}
+			for i := range scc.EStops {
+				if scc.EStops[i] {
+					scc.EStops[i] = false
+					arena.handleEstop(fmt.Sprintf("%s%d", allianceLetter, i+1), false)
+				}
+			}
+			arena.SCCNotifier.Notify()
+		}
+	}
 }
 
 // Loops indefinitely to track and update the arena components.
@@ -656,6 +682,11 @@ func (arena *Arena) checkCanStartMatch() error {
 		return err
 	}
 
+	err = arena.checkSccEstops()
+	if err != nil {
+		return err
+	}
+
 	if arena.Plc.IsEnabled() {
 		if !arena.Plc.IsHealthy {
 			return fmt.Errorf("Cannot start match while PLC is not healthy.")
@@ -682,6 +713,19 @@ func (arena *Arena) checkAllianceStationsReady(stations ...string) error {
 		if !allianceStation.Bypass {
 			if allianceStation.DsConn == nil || !allianceStation.DsConn.RobotLinked {
 				return fmt.Errorf("Cannot start match until all robots are connected or bypassed.")
+			}
+		}
+	}
+
+	return nil
+}
+
+func (arena *Arena) checkSccEstops() error {
+	for alliance, status := range arena.Scc.status {
+		for i := range status.EStops {
+			if status.EStops[i] {
+				return fmt.Errorf("Cannot start match with %s %d emergency stop active",
+					alliance, i+1)
 			}
 		}
 	}

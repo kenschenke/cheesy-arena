@@ -113,3 +113,18 @@ input[data-changed="true"], select[data-changed="true"] {
   border-radius: 3px;
   border: 1px solid #ddd;
 }
+.scc-indicator {
+  border: 2px solid #999;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+}
+
+.scc-indicator-connected {
+  background-color: lime;
+}
+
+.scc-indicator-pushed {
+  background-color: red;
+}
