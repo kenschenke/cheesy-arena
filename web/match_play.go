@@ -323,6 +323,7 @@ func (web *Web) matchPlayWebsocketHandler(w http.ResponseWriter, r *http.Request
 			case "purple":
 				web.arena.FieldLights.SetLightsPurple()
 			}
+			web.arena.FieldLightsNotifier.Notify()
 		case "startTimeout":
 			durationSec, ok := data.(float64)
 			if !ok {

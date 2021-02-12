@@ -7,13 +7,11 @@ package field
 
 import (
 	"fmt"
-	"time"
 )
 
 type SCCStatus struct {
 	Connected bool `json:"connected"`
 	EStops []bool `json:"eStops"`
-	LastUpdate time.Time
 }
 
 type SCCUpdate struct {
@@ -44,11 +42,9 @@ func NewSCC(arena *Arena) (*SCC) {
 
 	red := new(SCCStatus)
 	red.EStops = []bool{false, false, false}
-	red.LastUpdate = time.Now()
 
 	blue := new(SCCStatus)
 	blue.EStops = []bool{false, false, false}
-	blue.LastUpdate = time.Now()
 
 	scc.status["red"] = red
 	scc.status["blue"] = blue
@@ -76,7 +72,6 @@ func (scc *SCC) ApplyUpdate(update SCCUpdate) {
 
 		status.Connected = true
 		status.EStops = update.EStops
-		status.LastUpdate = time.Now()
 
 		scc.updateEstop(alliance, 1, update.EStops[0])
 		scc.updateEstop(alliance, 2, update.EStops[1])
@@ -92,6 +87,25 @@ func (scc *SCC) updateEstop(alliance string, station int, newValue bool) {
 	code := fmt.Sprintf("%s%d", alliance, station)
 	if scc.arena.AllianceStations[code].Estop == false || newValue {
 		scc.arena.handleEstop(code, newValue)
+	}
+}
+
+func (scc *SCC) Disconnect(alliance string) {
+	status, ok := scc.status[alliance]
+	if ok {
+		status.Connected = false
+		// Mark all 3 eStops as off
+		code := "R"
+		if alliance == "blue" {
+			code = "B"
+		}
+		status.EStops[0] = false
+		status.EStops[1] = false
+		status.EStops[2] = false
+		scc.updateEstop(code, 1, false)
+		scc.updateEstop(code, 2, false)
+		scc.updateEstop(code, 3, false)
+		scc.arena.SCCNotifier.Notify()
 	}
 }
 

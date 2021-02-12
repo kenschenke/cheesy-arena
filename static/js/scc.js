@@ -5,9 +5,13 @@
 
 var websocket;
 
+// Sends a websocket message to change the field lights
+var setFieldLights = function(color) {
+    websocket.send("setFieldLights", color);
+}
+
 // Handles a websocket message to update the SCC status.
 var handleUpdate = function(data) {
-    console.log(data);
     if (data.RedConnected) {
         $("#redConnected").addClass("scc-indicator-connected");
     } else {

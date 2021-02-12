@@ -504,27 +504,6 @@ func (arena *Arena) Update() {
 
 	arena.LastMatchTimeSec = matchTimeSec
 	arena.lastMatchState = arena.MatchState
-
-	// Update SCC connection status
-	now := time.Now()
-	for alliance, scc := range arena.Scc.status {
-		if scc.Connected && now.Sub(scc.LastUpdate).Seconds() > sccConnectionTimeout {
-			// Lost connection with SCC.
-			// Mark it as lost and show all three eStops for that SCC as false.
-			scc.Connected = false
-			allianceLetter := "R"
-			if alliance == "blue" {
-				allianceLetter = "B"
-			}
-			for i := range scc.EStops {
-				if scc.EStops[i] {
-					scc.EStops[i] = false
-					arena.handleEstop(fmt.Sprintf("%s%d", allianceLetter, i+1), false)
-				}
-			}
-			arena.SCCNotifier.Notify()
-		}
-	}
 }
 
 // Loops indefinitely to track and update the arena components.
@@ -811,8 +790,10 @@ func (arena *Arena) handlePlcOutput() {
 		// Turn off lights if all teams become ready.
 		if redAllianceReady && blueAllianceReady {
 			arena.Plc.SetFieldResetLight(false)
-			arena.FieldLights.SetLightsOff()
-			arena.FieldLightsNotifier.Notify()
+			if arena.FieldLights.GetCurrentState() != LightsOff {
+				arena.FieldLights.SetLightsOff()
+				arena.FieldLightsNotifier.Notify()
+			}
 		}
 	case PostMatch:
 		if arena.FieldReset {
