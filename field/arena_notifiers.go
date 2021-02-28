@@ -85,18 +85,31 @@ func (arena *Arena) generateArenaStatusMessage() interface{} {
 		}
 	}
 
+	startMatchErr := arena.checkCanStartMatch();
+	startMatchErrString := ""
+	if startMatchErr != nil {
+		startMatchErrString = startMatchErr.Error()
+	}
 	return &struct {
 		MatchId          int
 		AllianceStations map[string]*AllianceStation
 		TeamWifiStatuses map[string]network.TeamWifiStatus
 		MatchState
 		CanStartMatch         bool
+		CanStartMatchReason   string
 		PlcIsHealthy          bool
 		FieldEstop            bool
 		PlcArmorBlockStatuses map[string]bool
+		ScoringSccConnected   bool
+		RedSccConnected       bool
+		BlueSccConnected      bool
 	}{arena.CurrentMatch.Id, arena.AllianceStations, teamWifiStatuses, arena.MatchState,
-		arena.checkCanStartMatch() == nil, arena.Plc.IsHealthy, arena.Plc.GetFieldEstop(),
-		arena.Plc.GetArmorBlockStatuses()}
+		startMatchErr == nil, startMatchErrString,
+		arena.Plc.IsHealthy, arena.Plc.GetFieldEstop(),
+		arena.Plc.GetArmorBlockStatuses(),
+		arena.Scc.IsSccConnected("scoring"),
+		arena.Scc.IsSccConnected("red"),
+		arena.Scc.IsSccConnected("blue")}
 }
 
 func (arena *Arena) generateAudienceDisplayModeMessage() interface{} {

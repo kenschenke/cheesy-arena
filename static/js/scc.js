@@ -22,6 +22,11 @@ var handleUpdate = function(data) {
     } else {
         $("#blueConnected").removeClass("scc-indicator-connected");
     }
+    if (data.ScoringConnected) {
+        $("#scoringConnected").addClass("scc-indicator-connected");
+    } else {
+        $("#scoringConnected").removeClass("scc-indicator-connected");
+    }
 
     if (data.RedEstop1) {
         $("#redEstop1").addClass("scc-indicator-pushed");
@@ -53,6 +58,12 @@ var handleUpdate = function(data) {
         $("#blueEstop3").addClass("scc-indicator-pushed");
     } else {
         $("#blueEstop3").removeClass("scc-indicator-pushed");
+    }
+
+    if (data.ScoringEstop) {
+        $("#scoringEstop").addClass("scc-indicator-pushed");
+    } else {
+        $("#scoringEstop").removeClass("scc-indicator-pushed");
     }
 };
 

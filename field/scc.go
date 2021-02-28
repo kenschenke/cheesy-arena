@@ -33,6 +33,8 @@ type SCCNotifier struct {
 	BlueEstop1 bool
 	BlueEstop2 bool
 	BlueEstop3 bool
+	ScoringConnected bool
+	ScoringEstop bool
 }
 
 func NewSCC(arena *Arena) (*SCC) {
@@ -46,8 +48,12 @@ func NewSCC(arena *Arena) (*SCC) {
 	blue := new(SCCStatus)
 	blue.EStops = []bool{false, false, false}
 
+	scoring := new(SCCStatus)
+	scoring.EStops = []bool{false, false, false}
+
 	scc.status["red"] = red
 	scc.status["blue"] = blue
+	scc.status["scoring"] = scoring
 
 	return scc
 }
@@ -58,6 +64,8 @@ func (scc *SCC) ApplyUpdate(update SCCUpdate) {
 		alliance := "R"
 		if update.Alliance == "blue" {
 			alliance = "B"
+		} else if update.Alliance == "scoring" {
+			alliance = "S"
 		}
 
 		updated := false
@@ -73,9 +81,13 @@ func (scc *SCC) ApplyUpdate(update SCCUpdate) {
 		status.Connected = true
 		status.EStops = update.EStops
 
-		scc.updateEstop(alliance, 1, update.EStops[0])
-		scc.updateEstop(alliance, 2, update.EStops[1])
-		scc.updateEstop(alliance, 3, update.EStops[2])
+		if alliance == "R" || alliance == "B" {
+			scc.updateEstop(alliance, 1, update.EStops[0])
+			scc.updateEstop(alliance, 2, update.EStops[1])
+			scc.updateEstop(alliance, 3, update.EStops[2])
+		} else if update.EStops[0] {
+			scc.arena.AbortMatch();
+		}
 
 		if updated {
 			scc.arena.SCCNotifier.Notify()
@@ -119,5 +131,16 @@ func (scc *SCC) GenerateNotifierStatus() SCCNotifier {
 		scc.status["blue"].EStops[0],
 		scc.status["blue"].EStops[1],
 		scc.status["blue"].EStops[2],
+		scc.status["scoring"].Connected,
+		scc.status["scoring"].EStops[0],
 	}
 }
+
+func (scc *SCC) IsSccConnected(station string) bool {
+	status, ok := scc.status[station]
+	if ok {
+		return status.Connected
+	}
+	return false
+}
+

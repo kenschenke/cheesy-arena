@@ -693,6 +693,15 @@ func (arena *Arena) checkAllianceStationsReady(stations ...string) error {
 			if allianceStation.DsConn == nil || !allianceStation.DsConn.RobotLinked {
 				return fmt.Errorf("Cannot start match until all robots are connected or bypassed.")
 			}
+			if station[0] == 'R' {
+				if !arena.Scc.IsSccConnected("red") {
+					return fmt.Errorf("Cannot start match without red alliance SCC connected")
+				}
+			} else if station[0] == 'B' {
+				if !arena.Scc.IsSccConnected("blue") {
+					return fmt.Errorf("Cannot start match without blue alliance SCC connected")
+				}
+			}
 		}
 	}
 

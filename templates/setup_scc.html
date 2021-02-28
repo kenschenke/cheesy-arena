@@ -8,7 +8,7 @@
   {{define "body"}}
   <div class="container">
     <div class="row text-center">
-        <div class="col-lg-6 well well-darkblue">
+        <div class="col-lg-6 well well-darkblue scc-panel">
             <h3>Blue SCC</h3>
           <div class="row">
             <div class="col-sm-3">
@@ -29,7 +29,7 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-6 well well-darkred">
+        <div class="col-lg-6 well well-darkred scc-panel">
             <h3>Red SCC</h3>
           <div class="row">
             <div class="col-sm-3">
@@ -50,15 +50,28 @@
             </div>
           </div>
       </div>
-      <div class="row text-center">
-          <div class="col-lg-8 col-lg-offset-2 well">
-             <h3>Field Lights</h3>
-             <button class="btn btn-info" onclick="setFieldLights('off');">Off</button>
-             <button class="btn btn-info" onclick="setFieldLights('purple');">Purple</button>
-             <button class="btn btn-info" onclick="setFieldLights('green');">Green</button>
-             <button class="btn btn-info" onclick="setFieldLights('red');">Red</button>
-         </div>
-      </div>
+    </div>
+    <div class="row text-center">
+        <div class="col-lg-6 well scc-panel">
+            <h3>Scoring Table SCC</h3>
+            <div class="row">
+                <div class="col-sm-3">
+                    Connected<br/>
+                    <div id="scoringConnected" class="scc-indicator {{if .ScoringConnected}}indicator-connected{{end}}"></div>
+                </div>
+                <div class="col-sm-3">
+                    eStop<br/>
+                    <div id="scoringEstop" class="scc-indicator {{if .ScoringEstop}}indicator-pushed{{end}}"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 well scc-panel">
+            <h3>Field Lights</h3>
+            <button class="btn btn-info" onclick="setFieldLights('off');">Off</button>
+            <button class="btn btn-info" onclick="setFieldLights('purple');">Purple</button>
+            <button class="btn btn-info" onclick="setFieldLights('green');">Green</button>
+            <button class="btn btn-info" onclick="setFieldLights('red');">Red</button>
+       </div>
     </div>
   {{end}}
   {{define "script"}}

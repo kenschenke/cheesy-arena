@@ -74,6 +74,11 @@
   width: 150px;
   font-size: 16px;
 }
+#matchStartReason {
+  margin-top: 10px;
+  margin-bottom: -10px;
+  display: none;
+}
 .label-scoring {
   background-color: #e66;
 }
@@ -113,12 +118,23 @@ input[data-changed="true"], select[data-changed="true"] {
   border-radius: 3px;
   border: 1px solid #ddd;
 }
+
+.scc-panel {
+  min-height: 11em;
+}
+
 .scc-indicator {
   border: 2px solid #999;
   border-radius: 4px;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
+  line-height: 35px;
   margin: auto;
+  margin-top: 10px;
+  color: #000;
+  text-align: center;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 .scc-indicator-connected {

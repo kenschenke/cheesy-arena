@@ -157,6 +157,12 @@ var handleArenaStatus = function(data) {
   switch (matchStates[data.MatchState]) {
     case "PRE_MATCH":
       $("#startMatch").prop("disabled", !data.CanStartMatch);
+      if (data.CanStartMatchReason.length < 1) {
+        $("#matchStartReason").hide();
+      } else {
+        $("#matchStartReason").show();
+        $("#matchStartReason").html(data.CanStartMatchReason);
+      }
       $("#abortMatch").prop("disabled", true);
       $("#commitResults").prop("disabled", true);
       $("#discardResults").prop("disabled", true);
@@ -248,6 +254,22 @@ var handleArenaStatus = function(data) {
   $.each(data.PlcArmorBlockStatuses, function(name, status) {
     $("#plc" + name + "Status").attr("data-ready", status);
   });
+
+  if (data.ScoringSccConnected) {
+    $("#scoringSccStatus").addClass("scc-indicator-connected");
+  } else {
+    $("#scoringSccStatus").removeClass("scc-indicator-connected");
+  }
+  if (data.RedSccConnected) {
+    $("#redSccStatus").addClass("scc-indicator-connected");
+  } else {
+    $("#redSccStatus").removeClass("scc-indicator-connected");
+  }
+  if (data.BlueSccConnected) {
+    $("#blueSccStatus").addClass("scc-indicator-connected");
+  } else {
+    $("#blueSccStatus").removeClass("scc-indicator-connected");
+  }
 };
 
 // Handles a websocket message to update the match time countdown.

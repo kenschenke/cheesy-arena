@@ -101,6 +101,23 @@ func (web *Web) sccWebsocketHandler(w http.ResponseWriter, r *http.Request) {
 				Alliance: alliance,
 				EStops:[]bool{eStop1,eStop2,eStop3},
 			})
+		case "setfieldlights":
+			color, ok := data.(string)
+			if !ok {
+				ws.WriteError(fmt.Sprintf("Failed to parse '%s' message.", messageType))
+				continue
+			}
+			switch color {
+			case "off":
+				web.arena.FieldLights.SetLightsOff()
+			case "red":
+				web.arena.FieldLights.SetLightsRed()
+			case "green":
+				web.arena.FieldLights.SetLightsGreen()
+			case "purple":
+				web.arena.FieldLights.SetLightsPurple()
+			}
+			web.arena.FieldLightsNotifier.Notify()
 		default:
 			ws.WriteError(fmt.Sprintf("Invalid message type '%s'.", messageType))
 			continue
