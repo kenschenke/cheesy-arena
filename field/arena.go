@@ -836,9 +836,8 @@ func (arena *Arena) handleEstop(station string, state bool) {
 	if state {
 		if arena.MatchState == AutoPeriod {
 			allianceStation.Astop = true
-		} else {
-			allianceStation.Estop = true
 		}
+		allianceStation.Estop = true
 	} else {
 		if arena.MatchState != AutoPeriod {
 			allianceStation.Astop = false
