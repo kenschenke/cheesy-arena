@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -53,6 +54,7 @@ func (dm *DnsMasq) ConfigureTeamEthernet(teams [6]*model.Team) error {
 				vlan, team.Id/100, team.Id%100))
 			err := ioutil.WriteFile(fmt.Sprintf("/etc/dnsmasq.d/vlan%d.conf", vlan), contents, 0664)
 			if err != nil {
+				log.Printf("Failed to configure VLAN%d for team %d: %s", vlan, team.Id, err.Error())
 				return
 			}
 		}
