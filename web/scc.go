@@ -58,11 +58,11 @@ func (web *Web) sccWebsocketHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, data, err := ws.Read()
 		if err != nil {
+			if len(alliance) > 0 {
+				web.arena.Scc.Disconnect(alliance)
+			}
 			if err == io.EOF {
 				// Client has closed the connection; nothing to do here.
-				if len(alliance) > 0 {
-					web.arena.Scc.Disconnect(alliance)
-				}
 				return
 			}
 			log.Println(err)
