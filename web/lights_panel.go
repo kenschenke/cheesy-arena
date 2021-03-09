@@ -67,7 +67,7 @@ func (web *Web) lightsPanelWebsocketHandler(w http.ResponseWriter, r *http.Reque
 			}
 			switch color {
 			case "off":
-				web.arena.FieldLights.SetLightsOff()
+				web.arena.FieldLights.SetLightsOff(false)
 				web.arena.FieldLightsNotifier.Notify()
 			case "red":
 				web.arena.FieldLights.SetLightsRed()

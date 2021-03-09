@@ -109,7 +109,7 @@ func (web *Web) sccWebsocketHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			switch color {
 			case "off":
-				web.arena.FieldLights.SetLightsOff()
+				web.arena.FieldLights.SetLightsOff(false)
 			case "red":
 				web.arena.FieldLights.SetLightsRed()
 			case "green":
@@ -158,7 +158,7 @@ func (web *Web) sccGetTestingWebsocketHandler(w http.ResponseWriter, r *http.Req
 			}
 			switch color {
 			case "off":
-				web.arena.FieldLights.SetLightsOff()
+				web.arena.FieldLights.SetLightsOff(false)
 			case "red":
 				web.arena.FieldLights.SetLightsRed()
 			case "green":

@@ -409,6 +409,7 @@ func (arena *Arena) Update() {
 			sendDsPacket = true
 		}
 		arena.Plc.ResetMatch()
+		arena.FieldLights.ResetWasAutoSet()
 	case WarmupPeriod:
 		auto = true
 		enabled = false
@@ -799,8 +800,8 @@ func (arena *Arena) handlePlcOutput() {
 		// Turn off lights if all teams become ready.
 		if redAllianceReady && blueAllianceReady {
 			arena.Plc.SetFieldResetLight(false)
-			if arena.FieldLights.GetCurrentState() != LightsOff {
-				arena.FieldLights.SetLightsOff()
+			if arena.FieldLights.GetCurrentState() != LightsOff && !arena.FieldLights.GetWasAutoSet() {
+				arena.FieldLights.SetLightsOff(true)
 				arena.FieldLightsNotifier.Notify()
 			}
 		}

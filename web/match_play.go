@@ -315,7 +315,7 @@ func (web *Web) matchPlayWebsocketHandler(w http.ResponseWriter, r *http.Request
 			}
 			switch color {
 			case "off":
-				web.arena.FieldLights.SetLightsOff()
+				web.arena.FieldLights.SetLightsOff(false)
 			case "red":
 				web.arena.FieldLights.SetLightsRed()
 			case "green":

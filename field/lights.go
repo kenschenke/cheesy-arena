@@ -17,7 +17,8 @@ const (
 )
 
 type Lights struct {
-	state LightState
+	state      LightState
+	wasAutoSet bool
 }
 
 type LightApiStatus struct {
@@ -28,6 +29,7 @@ type LightApiStatus struct {
 func NewLights() (*Lights) {
 	lights := new(Lights)
 	lights.state = LightsOff
+	lights.wasAutoSet = false
 
 	return lights
 }
@@ -52,7 +54,18 @@ func (lights *Lights) GetCurrentStateAsString() string {
 	return colorStr
 }
 
-func (lights *Lights) SetLightsOff() {
+func (lights *Lights) GetWasAutoSet() bool {
+	return lights.wasAutoSet
+}
+
+func (lights *Lights) ResetWasAutoSet() {
+	lights.wasAutoSet = false
+}
+
+func (lights *Lights) SetLightsOff(wasAuto bool) {
+	if wasAuto {
+		lights.wasAutoSet = true
+	}
 	lights.setLights(LightsOff)
 }
 
