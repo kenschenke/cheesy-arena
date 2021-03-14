@@ -24,6 +24,7 @@ const pingInterval = time.Second * 10
 type Websocket struct {
 	conn       *websocket.Conn
 	writeMutex *sync.Mutex
+	isAlive    bool
 }
 
 type Message struct {
@@ -39,15 +40,28 @@ func NewWebsocket(w http.ResponseWriter, r *http.Request) (*Websocket, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Websocket{conn, new(sync.Mutex)}, nil
+
+	ws := new(Websocket)
+	ws.conn = conn
+	ws.writeMutex = new(sync.Mutex)
+	ws.isAlive = true
+
+	conn.SetPongHandler(ws.PongHandler)
+
+	return ws, nil
 }
 
 func NewTestWebsocket(conn *websocket.Conn) *Websocket {
-	return &Websocket{conn, new(sync.Mutex)}
+	return &Websocket{conn, new(sync.Mutex), true}
 }
 
 func (ws *Websocket) Close() error {
 	return ws.conn.Close()
+}
+
+func (ws *Websocket) PongHandler(string) error {
+	ws.isAlive = true
+	return nil
 }
 
 func (ws *Websocket) Read() (string, interface{}, error) {
@@ -65,6 +79,21 @@ func (ws *Websocket) Read() (string, interface{}, error) {
 		return "", nil, fmt.Errorf("[%s:%d] Websocket read error: %v", filePathParts[len(filePathParts)-1], line, err)
 	}
 	return message.Type, message.Data, nil
+}
+
+func (ws *Websocket) SendPing() error {
+	if !ws.isAlive {
+		ws.conn.Close()
+		return fmt.Errorf("No response from pong - connection closed?")
+	}
+
+	ws.isAlive = false
+	err := ws.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(10 * time.Second))
+	if err != nil {
+		return fmt.Errorf("Websocket write timeout on ping")
+	}
+
+	return nil
 }
 
 func (ws *Websocket) ReadWithTimeout(timeout time.Duration) (string, interface{}, error) {
@@ -136,7 +165,7 @@ func (ws *Websocket) HandleNotifiers(notifiers ...*Notifier) {
 		// Block until a message is available on any of the channels.
 		chosenIndex, value, ok := reflect.Select(listeners)
 		if ok && chosenIndex == pingIndex {
-			err := ws.Write("ping", nil)
+			err := ws.SendPing()
 			if err != nil {
 				// The client has probably closed the connection; bail out of the loop.
 				return
